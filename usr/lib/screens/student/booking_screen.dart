@@ -13,8 +13,11 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   String? _selectedSubject;
   String _selectedCurriculum = 'qatari';
+  String? _selectedGrade;
   DateTime _selectedDate = DateTime.now();
-  String? _selectedTime;
+  TimeOfDay? _selectedTime;
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _houseNumberController = TextEditingController();
 
   final List<String> _subjects = [
     'الرياضيات',
@@ -25,13 +28,19 @@ class _BookingScreenState extends State<BookingScreen> {
     'الكيمياء',
   ];
 
-  final List<String> _availableTimes = [
-    '08:00 صباحاً',
-    '10:00 صباحاً',
-    '12:00 ظهراً',
-    '02:00 مساءً',
-    '04:00 مساءً',
-    '06:00 مساءً',
+  final List<String> _grades = [
+    'الصف الأول',
+    'الصف الثاني',
+    'الصف الثالث',
+    'الصف الرابع',
+    'الصف الخامس',
+    'الصف السادس',
+    'الصف السابع',
+    'الصف الثامن',
+    'الصف التاسع',
+    'الصف العاشر',
+    'الصف الحادي عشر',
+    'الصف الثاني عشر',
   ];
 
   @override
@@ -40,11 +49,44 @@ class _BookingScreenState extends State<BookingScreen> {
     _selectedSubject = widget.subject;
   }
 
+  @override
+  void dispose() {
+    _addressController.dispose();
+    _houseNumberController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppTheme.primaryMaroon,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedTime = picked;
+      });
+    }
+  }
+
   void _handleBooking() {
-    if (_selectedSubject == null || _selectedTime == null) {
+    if (_selectedSubject == null ||
+        _selectedGrade == null ||
+        _selectedTime == null ||
+        _addressController.text.isEmpty ||
+        _houseNumberController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('يرجى اختيار المادة والوقت'),
+          content: Text('يرجى إكمال جميع الحقول المطلوبة'),
           backgroundColor: Colors.red,
         ),
       );
@@ -56,15 +98,20 @@ class _BookingScreenState extends State<BookingScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('تأكيد الحجز'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('المادة: $_selectedSubject'),
-            Text('المنهج: ${_selectedCurriculum == "qatari" ? "قطري" : "دولي"}'),
-            Text('التاريخ: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
-            Text('الوقت: $_selectedTime'),
-          ],
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('المادة: $_selectedSubject'),
+              Text('الصف الدراسي: $_selectedGrade'),
+              Text('المنهج: ${_selectedCurriculum == "qatari" ? "قطري" : "دولي"}'),
+              Text('التاريخ: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
+              Text('الوقت: ${_selectedTime!.format(context)}'),
+              Text('العنوان: ${_addressController.text}'),
+              Text('رقم البيت: ${_houseNumberController.text}'),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -126,6 +173,32 @@ class _BookingScreenState extends State<BookingScreen> {
             ),
             const SizedBox(height: 24),
 
+            // Grade selection
+            Text(
+              'الصف الدراسي',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              value: _selectedGrade,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.school),
+                hintText: 'اختر الصف الدراسي',
+              ),
+              items: _grades.map((grade) {
+                return DropdownMenuItem(
+                  value: grade,
+                  child: Text(grade),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  _selectedGrade = value;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+
             // Curriculum selection
             Text(
               'اختر المنهج',
@@ -173,6 +246,16 @@ class _BookingScreenState extends State<BookingScreen> {
                     initialDate: _selectedDate,
                     firstDate: DateTime.now(),
                     lastDate: DateTime.now().add(const Duration(days: 30)),
+                    builder: (context, child) {
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: const ColorScheme.light(
+                            primary: AppTheme.primaryMaroon,
+                          ),
+                        ),
+                        child: child!,
+                      );
+                    },
                   );
                   if (picked != null) {
                     setState(() {
@@ -190,27 +273,56 @@ class _BookingScreenState extends State<BookingScreen> {
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _availableTimes.map((time) {
-                final isSelected = _selectedTime == time;
-                return FilterChip(
-                  label: Text(time),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(() {
-                      _selectedTime = selected ? time : null;
-                    });
-                  },
-                  selectedColor: AppTheme.secondaryGold,
-                  checkmarkColor: AppTheme.textPrimary,
-                  backgroundColor: Colors.white,
-                  side: BorderSide(
-                    color: isSelected ? AppTheme.secondaryGold : Colors.grey.shade300,
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.access_time, color: AppTheme.primaryMaroon),
+                title: Text(
+                  _selectedTime != null
+                      ? _selectedTime!.format(context)
+                      : 'اضغط لاختيار الوقت',
+                  style: TextStyle(
+                    color: _selectedTime != null
+                        ? AppTheme.textPrimary
+                        : AppTheme.textSecondary,
                   ),
-                );
-              }).toList(),
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: _selectTime,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Address field
+            Text(
+              'العنوان',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _addressController,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.location_on),
+                hintText: 'أدخل عنوان السكن',
+                labelText: 'العنوان',
+              ),
+              maxLines: 2,
+            ),
+            const SizedBox(height: 24),
+
+            // House number field
+            Text(
+              'رقم البيت',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _houseNumberController,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.home),
+                hintText: 'أدخل رقم البيت',
+                labelText: 'رقم البيت',
+              ),
+              keyboardType: TextInputType.text,
             ),
             const SizedBox(height: 32),
 
