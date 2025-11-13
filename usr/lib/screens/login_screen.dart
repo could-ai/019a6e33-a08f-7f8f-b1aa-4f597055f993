@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../utils/theme.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -46,11 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
             colors: [
-              AppTheme.primaryMaroon,
-              AppTheme.primaryMaroon.withOpacity(0.8),
+              Colors.white,
+              AppTheme.primaryMaroon.withOpacity(0.05),
+              AppTheme.secondaryGold.withOpacity(0.08),
             ],
           ),
         ),
@@ -59,133 +61,244 @@ class _LoginScreenState extends State<LoginScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Card(
-                elevation: 8,
+                elevation: 12,
+                shadowColor: AppTheme.primaryMaroon.withOpacity(0.3),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
+                  borderRadius: BorderRadius.circular(28),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Logo placeholder
-                      Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: AppTheme.primaryMaroon.withOpacity(0.1),
-                          shape: BoxShape.circle,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white,
+                        AppTheme.secondaryGold.withOpacity(0.02),
+                      ],
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Logo
+                        Container(
+                          width: 110,
+                          height: 110,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                AppTheme.primaryMaroon,
+                                AppTheme.primaryMaroon.withOpacity(0.8),
+                              ],
+                            ),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryMaroon.withOpacity(0.4),
+                                blurRadius: 20,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.school_rounded,
+                            size: 55,
+                            color: Colors.white,
+                          ),
                         ),
-                        child: const Icon(
-                          Icons.school,
-                          size: 50,
-                          color: AppTheme.primaryMaroon,
+                        const SizedBox(height: 24),
+                        // App Name
+                        Text(
+                          'EDUQAT',
+                          style: GoogleFonts.cairo(
+                            fontSize: 38,
+                            fontWeight: FontWeight.bold,
+                            color: AppTheme.primaryMaroon,
+                            letterSpacing: 1.5,
+                            shadows: [
+                              Shadow(
+                                color: AppTheme.secondaryGold.withOpacity(0.3),
+                                offset: const Offset(2, 2),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'تطبيق الحجز التعليمي',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        const SizedBox(height: 8),
+                        Text(
+                          'منصة التعليم القطرية',
+                          style: GoogleFonts.tajawal(
+                            fontSize: 16,
+                            color: AppTheme.secondaryGold,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        // User type selector
+                        Text(
+                          'اختر نوع الحساب',
+                          style: GoogleFonts.cairo(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: AppTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        SegmentedButton<String>(
+                          segments: [
+                            ButtonSegment(
+                              value: 'student',
+                              label: Text(
+                                'طالب',
+                                style: GoogleFonts.cairo(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              icon: const Icon(Icons.person),
+                            ),
+                            ButtonSegment(
+                              value: 'parent',
+                              label: Text(
+                                'ولي أمر',
+                                style: GoogleFonts.cairo(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              icon: const Icon(Icons.family_restroom),
+                            ),
+                            ButtonSegment(
+                              value: 'teacher',
+                              label: Text(
+                                'مدرس',
+                                style: GoogleFonts.cairo(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              icon: const Icon(Icons.work),
+                            ),
+                          ],
+                          selected: {_selectedUserType},
+                          onSelectionChanged: (Set<String> newSelection) {
+                            setState(() {
+                              _selectedUserType = newSelection.first;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 32),
+                        // Email field
+                        TextField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'البريد الإلكتروني',
+                            labelStyle: GoogleFonts.tajawal(
+                              fontWeight: FontWeight.w500,
+                            ),
+                            prefixIcon: const Icon(Icons.email_rounded),
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          textDirection: TextDirection.ltr,
+                          style: GoogleFonts.roboto(),
+                        ),
+                        const SizedBox(height: 20),
+                        // Password field
+                        TextField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'كلمة المرور',
+                            labelStyle: GoogleFonts.tajawal(
+                              fontWeight: FontWeight.w500,
+                            ),
+                            prefixIcon: const Icon(Icons.lock_rounded),
+                          ),
+                          obscureText: true,
+                          textDirection: TextDirection.ltr,
+                          style: GoogleFonts.roboto(),
+                        ),
+                        const SizedBox(height: 32),
+                        // Login button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton(
+                            onPressed: _handleLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppTheme.primaryMaroon,
+                              foregroundColor: Colors.white,
+                              elevation: 6,
+                              shadowColor: AppTheme.primaryMaroon.withOpacity(0.5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'تسجيل الدخول',
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.login_rounded, size: 22),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        // Forgot password
+                        TextButton(
+                          onPressed: () {
+                            // TODO: Implement forgot password
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'استعادة كلمة المرور قريباً',
+                                  style: GoogleFonts.tajawal(),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'نسيت كلمة المرور؟',
+                            style: GoogleFonts.tajawal(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
                               color: AppTheme.primaryMaroon,
+                            ),
+                          ),
+                        ),
+                        const Divider(height: 32),
+                        // Create account
+                        TextButton.icon(
+                          onPressed: () {
+                            // TODO: Navigate to registration screen
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'إنشاء حساب جديد قريباً',
+                                  style: GoogleFonts.tajawal(),
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.person_add_rounded),
+                          label: Text(
+                            'إنشاء حساب جديد',
+                            style: GoogleFonts.cairo(
+                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'قطر',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: AppTheme.secondaryGold,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                      const SizedBox(height: 32),
-                      // User type selector
-                      SegmentedButton<String>(
-                        segments: const [
-                          ButtonSegment(
-                            value: 'student',
-                            label: Text('طالب'),
-                            icon: Icon(Icons.person),
-                          ),
-                          ButtonSegment(
-                            value: 'parent',
-                            label: Text('ولي أمر'),
-                            icon: Icon(Icons.family_restroom),
-                          ),
-                          ButtonSegment(
-                            value: 'teacher',
-                            label: Text('مدرس'),
-                            icon: Icon(Icons.work),
-                          ),
-                        ],
-                        selected: {_selectedUserType},
-                        onSelectionChanged: (Set<String> newSelection) {
-                          setState(() {
-                            _selectedUserType = newSelection.first;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 24),
-                      // Email field
-                      TextField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(
-                          labelText: 'البريد الإلكتروني',
-                          prefixIcon: Icon(Icons.email),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        textDirection: TextDirection.ltr,
-                      ),
-                      const SizedBox(height: 16),
-                      // Password field
-                      TextField(
-                        controller: _passwordController,
-                        decoration: const InputDecoration(
-                          labelText: 'كلمة المرور',
-                          prefixIcon: Icon(Icons.lock),
-                        ),
-                        obscureText: true,
-                        textDirection: TextDirection.ltr,
-                      ),
-                      const SizedBox(height: 24),
-                      // Login button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _handleLogin,
-                          child: const Text(
-                            'تسجيل الدخول',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      // Forgot password
-                      TextButton(
-                        onPressed: () {
-                          // TODO: Implement forgot password
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('استعادة كلمة المرور قريباً')),
-                          );
-                        },
-                        child: const Text('نسيت كلمة المرور؟'),
-                      ),
-                      const Divider(height: 32),
-                      // Create account
-                      TextButton(
-                        onPressed: () {
-                          // TODO: Navigate to registration screen
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('إنشاء حساب جديد قريباً')),
-                          );
-                        },
-                        child: const Text(
-                          'إنشاء حساب جديد',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
